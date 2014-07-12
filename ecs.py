@@ -73,7 +73,7 @@ def find(path, patern, settings):
     allmath = 0
     if ignoreCase and not regex:
             patern = patern.lower()
-    allFilesLenght = 0.0
+    allFilesLenght = 0
 
     for proot, dirs, files in walk(path):
         for fname, st in files:
@@ -112,8 +112,8 @@ def find(path, patern, settings):
             # print "\r",
             # print countall,
             if countall%20:
-                proc = countall/allFilesLenght * 100
-                root.title("%3.0f%% : %s/%s"%(proc, countall, allFilesLenght))
+                proc = float(countall)/allFilesLenght * 100
+                root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
             #encoding = "utf8"
             encoding = "cp1251"
             if autoEncoding and st.st_size:
