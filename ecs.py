@@ -222,11 +222,11 @@ def startFind(*e):
         blink(epath)  
         return
 
-    path2 = unicode(epath1.get())
+    path2 = unicode(epath_second.get())
     path2 = [os.path.normpath(p.strip())  for p in path2.split(";") if p.strip() and not p.strip().startswith("#")]  
     for p in  path2:       
         if not os.path.isdir(p):
-            blink(epath1)  
+            blink(epath_second)  
             return
 
     allpath = set(path2+[path])         
@@ -535,19 +535,19 @@ frame_path.grid(row = 0 ,column =1,columnspan = 4)
 
 # epath = tk.Entry(frame_path,width = 105, font = ("courier",14) )
 epathFont = tkFont.Font(family='courier', size=14)
-epath = wEntry(frame_path,width = 105, font = epathFont )
+epath = wEntry(frame_path,width = 86, font = epathFont )
 epath.insert(0,path)
 epath.bind("<Down>",lambda e:eword.focus())
 epath.bind("<Button-3>",pathHistory)
 epath.bind("<Return>",startFind)
 # epath.bind("<Control-space>",epathKey)
-epath.grid(row = 0 ,column =1,columnspan = 4)
+epath.grid(row = 0 ,column =1,columnspan = 4,  sticky='w')
 
-epath1 = tk.Entry(frame_path,width = 145, font = ("courier",10) )
-epath1.grid(row = 1 ,column = 1,columnspan = 4)
-epath1.insert(0,";".join(history.getlsitPaths2())+";")
+epath_second = tk.Entry(frame_path,width = 120, font = ("courier",10) )
+epath_second.grid(row = 1 ,column = 1,columnspan = 4,  sticky='w')
+epath_second.insert(0,";".join(history.getlsitPaths2())+";")
 
-eword = tk.Entry(frame1,width = 80, font = ("courier",14), bg= "AliceBlue" )
+eword = tk.Entry(frame1,width = 50, font = ("courier",14), bg= "AliceBlue" )
 eword.insert(0,word)
 eword.bind("<Button-2>",insert2eword)
 eword.bind("<ButtonRelease-2>",eventIgnore)
@@ -558,15 +558,15 @@ eword.bind("<Down>",lambda e:ext_wiget.focus())
 eword.bind("<Up>",lambda e:epath.focus())
 
 extvalidator  = ExtNotify()
-ext_wiget = tk.Entry(frame1,width = 80, font = ("courier",14) )
+ext_wiget = tk.Entry(frame1,width = 50, font = ("courier",14) )
 ext_wiget.insert(0,"-* +py +def +xml +txt +cpp +hpp  +ipp")
 ext_wiget.bind("<Return>",startFind)
 ext_wiget.bind("<Up>",lambda e:eword.focus())
 
 
-tk.Label(frame1,text = "PATH").grid(row = 0 ,column =0, sticky='w')
-tk.Label(frame1,text = "WORD").grid(row = 1 ,column =0, sticky='w')
-tk.Label(frame1,text = "EXT ").grid(row = 2 ,column =0, sticky='w')
+tk.Label(frame1,text = "PATH", font = ("courier",10) ).grid(row = 0 ,column =0, sticky='w')
+tk.Label(frame1,text = "WORD", font = ("courier",10) ).grid(row = 1 ,column =0, sticky='w')
+tk.Label(frame1,text = "EXT ", font = ("courier",10) ).grid(row = 2 ,column =0, sticky='w')
 
 
 eword.grid(row = 1 ,column =1, sticky='w')
@@ -578,7 +578,7 @@ ob_dir.grid(row = 0 ,column =5)
 but = tk.Button(frame1,command = startFind,text = "FIND")
 but.grid(row = 1 ,column =2, sticky='ew')
 chrevar = tk.IntVar()
-chre = tk.Checkbutton(frame1,text='use reg', variable=chrevar)
+chre = tk.Checkbutton(frame1,text='regex', variable=chrevar)
 chre.grid(row = 1 ,column =3, sticky='ew')
 
 fnamevar = tk.IntVar()
@@ -590,7 +590,7 @@ wignCASE = tk.Checkbutton(frame1,text='ignCASE', variable=ignCASEvar)
 wignCASE.grid(row = 1 ,column =5, sticky='ew')
 
 autoEncodvar = tk.IntVar()
-autoEncod = tk.Checkbutton(frame1,text='aDetectEnc', variable=autoEncodvar)
+autoEncod = tk.Checkbutton(frame1,text='aЁ', variable=autoEncodvar)
 autoEncod.grid(row = 2 ,column =2, sticky='ew')
 
 inputAddStr = tk.Entry(frame1,width = 8, font = ("courier",8) )
@@ -615,10 +615,6 @@ inputMaxSize.bind("<Return>",startFind)
 def resetColor(*e):
     eword["bg"] = "SystemWindow"
 
-
-# root.bind("",resetColor)
-
-
 def insertFromTxt(*e):
     try:
         select = wtext.selection_get()
@@ -638,24 +634,7 @@ wtext['xscrollcommand'] = hscrollbar.set
 vscrollbar.pack(side = "right",fill = "y",expand=0)
 hscrollbar.pack(side = "bottom",fill = "x",expand=0)
 wtext.pack(side = "right",fill = tk.BOTH,expand=1)
-# vscrollbar.grid(row = 1 ,column =1, sticky='nse')
-# hscrollbar.grid(row = 2 ,column =0, sticky='ew')
-# wtext.grid(row = 1 ,column =0, sticky='ewns')
-# root.rowconfigure(1, weight=1)
-# root.columnconfigure(1, weight=1)
 
-# # tk.Grid.rowconfigure(wtext,7,weight=1)
-# # tk.Grid.columnconfigure(wtext,10,weight=10)
-# wtext.columnconfigure(0,weight=10)
-
-# # tk.Grid.rowconfigure(vscrollbar,7,weight=1)
-# vscrollbar.columnconfigure(1,weight=2)
-
-# # tk.Grid.rowconfigure(hscrollbar,7,weight=1)
-# hscrollbar.columnconfigure(0,weight=1)
-
-# # tk.Grid.rowconfigure(frame1,7,weight=1)
-# frame1.columnconfigure(0,weight=0)
 
 init()
 root.bind("<F1>",lambda e: chrevar.set(not chrevar.get()))
