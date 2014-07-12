@@ -60,13 +60,13 @@ class HyperlinkManager:
         for tag in self.text.tag_names(tk.CURRENT):
             if tag.startswith("dir_hyperred-"):
                 pathfile = self.dir_links[tag][0].replace("/","\\")
-                print "link :",[self.dir_links[tag]]
-                print "link2:",[pathfile]
+                # print "link :",[self.dir_links[tag]]
+                # print "link2:",[pathfile]
                 subprocess.Popen(r'explorer /select,"%s"'%pathfile)
                 self.text.config(cursor="")
                 return
             if tag.startswith("hyperred-"):
-                print "link:",[self.links[tag]]
+                # print "link:",[self.links[tag]]
 
         
                 #d = {"fname":self.links[tag][0], "line":self.links[tag][1],"column":}

@@ -287,7 +287,7 @@ def startFind(*e):
         wtext.insert('end',' dir',hyperlink.addToDir([fullname,0])  ) 
         wtext.insert('end','   ' ) 
         if not d["isDir"]:
-            wtext.insert('end',"TOIDE", hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
+            wtext.insert('end',"TOIDE", hyperlink.addlink({"fname":fullname,"line":0,"column":0, "info":d}) ) 
         # wtext.insert('end',fullname, hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
         wtext.insert('end',' %s     %dKB  '  %(d["encoding"], d["size"]/1024))
         wtext.insert('end',"\n") 
@@ -330,7 +330,7 @@ def startFind(*e):
             for istart, iend, ireal in indexes:
                 if lastiend <istart:
                     wtext.insert('end',stroke[lastiend:istart] )
-                wtext.insert('end',stroke[istart:iend], hyperlink.addlink({"fname":fullname,"line":linenumber,"column":ireal}) ) 
+                wtext.insert('end',stroke[istart:iend], hyperlink.addlink({"fname":fullname,"line":linenumber,"column":ireal, "info":d}) ) 
                 lastiend   =    iend
             if iend <  len(stroke):
                   wtext.insert('end',stroke[iend:] )
