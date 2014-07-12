@@ -80,6 +80,24 @@ def find(path, patern, settings):
             allFilesLenght += 1  
 
     for proot, dirs, files in walk(path):
+        if settings["fname"]:
+            for folder, st in dirs:
+                subs = searhInStr(folder,patern,ignoreCase,regex, addpos = len(proot)+1)
+                if subs:
+                    dictFound = { "fullname": os.path.normpath(os.path.join(proot, folder)),
+                            "subsfullname":subs,
+                            "isDir":1,
+                            "encoding":None,
+                            "subs":[],
+                            "addStrUp":{},
+                            "addStrDown":{},
+                             "encoding" :   "",   
+                            "size": 0
+                        }
+                    out.append(dictFound) 
+
+
+                
         for fname, st in files:
             countall += 1
             if maxsize and maxsize <  st.st_size:
@@ -90,6 +108,7 @@ def find(path, patern, settings):
 
             fullname = os.path.normpath(os.path.join(proot, fname))
             dictFound = { "fullname":fullname,
+                            "isDir": 0,
                             "subsfullname":None,
                             "encoding":None,
                             "subs":[],
@@ -267,8 +286,8 @@ def startFind(*e):
         wtext.insert('end',"\n"+'_'*20+'\n')   
         wtext.insert('end',' dir',hyperlink.addToDir([fullname,0])  ) 
         wtext.insert('end','   ' ) 
-
-        wtext.insert('end',"TOIDE", hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
+        if not d["isDir"]:
+            wtext.insert('end',"TOIDE", hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
         # wtext.insert('end',fullname, hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
         wtext.insert('end',' %s     %dKB  '  %(d["encoding"], d["size"]/1024))
         wtext.insert('end',"\n") 
