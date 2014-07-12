@@ -1,9 +1,12 @@
+# 
+# -*- coding: utf-8 -*-
 #
-# cod
+
 
 
 import sys
  
+# hack подменяю пути до либ, я криво их поставил
 sys.path = [z.replace("Python264","Python27") for z in sys.path]
  
 
@@ -70,9 +73,11 @@ def find(path, patern, settings):
     allmath = 0
     if ignoreCase and not regex:
             patern = patern.lower()
+    allFilesLenght = 0.0
 
-
-        
+    for proot, dirs, files in walk(path):
+        for fname, st in files:
+            allFilesLenght += 1  
 
     for proot, dirs, files in walk(path):
         for fname, st in files:
@@ -107,7 +112,8 @@ def find(path, patern, settings):
             # print "\r",
             # print countall,
             if countall%20:
-               root.title(":%s"%countall)
+                proc = countall/allFilesLenght * 100
+                root.title("%3.0f%% : %s/%s"%(proc, countall, allFilesLenght))
             #encoding = "utf8"
             encoding = "cp1251"
             if autoEncoding and st.st_size:
