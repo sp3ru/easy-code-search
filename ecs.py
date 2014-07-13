@@ -15,7 +15,8 @@ sys.path = [z.replace("Python264","Python27") for z in sys.path]
 
 from speedwalk import walk
 from history import History, ExtNotify
-from tkLinks import HyperlinkManager
+# from tkLinks import HyperlinkManager
+import textWidget
 import subprocess
 import re 
 import chardet 
@@ -309,84 +310,7 @@ def startFind(*e):
 
 
     for d in allout:
-        fullname =d['fullname']
-        subsfullname =d['subsfullname']
-        wtext.insert('end',"\n"+'_'*20+'\n')   
-        wtext.insert('end',' dir',hyperlink.addToDir([fullname,0])  ) 
-        wtext.insert('end','   ' ) 
-        if not d["isDir"]:
-            wtext.insert('end',"TOIDE", hyperlink.addlink({"fname":fullname,"line":0,"column":0, "info":d}) ) 
-        # wtext.insert('end',fullname, hyperlink.addlink({"fname":fullname,"line":0,"column":0}) ) 
-        wtext.insert('end',' %s     %dKB  '  %(d["encoding"], d["size"]/1024))
-        wtext.insert('end',"\n") 
-        wtext.insert('end',fullname, "fname" ) 
-        # wtext.insert('end',"\n" ) 
-
-        line, column = wtext.index('insert').split('.')
-        if subsfullname:
-            for start,end, _ in subsfullname:
-                wtext.tag_add("here", "%s.%s"%(line,start),"%s.%s"%(line,end))
-                
-        wtext.insert('end','\n\n' )  
-        last_line_number  = -1 
-        for cursub,(stroke,linenumber,indexes, sub_addStrUp, sub_addStrDown) in enumerate(d["subs"]):
-            column = indexes[0][-1]
-            # wtext.insert('end',stroke, hyperlink.addlink({"fname":fullname,"line":linenumber,"column":column}) )
-            # line, column = wtext.index('insert').split('.')
-            # for start,end, _ in indexes:
-            #     wtext.tag_add("here", "%s.%s"%(line,start),"%s.%s"%(line,end))
-            ######################################################
-            subaddkeys = sub_addStrUp.keys()
-            subaddkeys.sort()
-            for sub_a_k in subaddkeys:
-                if  sub_a_k > last_line_number:
-                    if sub_a_k > last_line_number+1:
-                        wtext.insert('end', "...\n","number")
-                    wtext.insert('end', sub_addStrUp[sub_a_k])
-                    drawNum(sub_addStrUp[sub_a_k])
-                    wtext.insert('end','\n' ) 
-                    last_line_number = sub_a_k
-            
-        
-
-            if not subaddkeys and last_line_number != -1:
-                if linenumber > last_line_number+1:
-                        wtext.insert('end', "...\n","number")  
-
-
-            lastiend =0
-            copyd = copy.deepcopy(d)
-            copyd["subs"] = [d["subs"][cursub]]
-            for istart, iend, ireal in indexes:
-                if lastiend <istart:
-                    wtext.insert('end',stroke[lastiend:istart] )
-                
-                
-                wtext.insert('end',stroke[istart:iend], hyperlink.addlink({"fname":fullname,"line":linenumber,"column":ireal, "info":copyd}) ) 
-                lastiend   =    iend
-            if iend <  len(stroke):
-                  wtext.insert('end',stroke[iend:] )
-            drawNum(stroke)
-            wtext.insert('end','\n' ) 
-
-            #####################################################
-            nextlinenumber = -1
-            if cursub+1 < len( d["subs"]): 
-                nextlinenumber =  d["subs"][cursub+1][1]
-            subaddkeys = sub_addStrDown.keys()
-            subaddkeys.sort()
-            for sub_a_k in subaddkeys:
-                if nextlinenumber== -1 or sub_a_k < nextlinenumber:
-                    wtext.insert('end', sub_addStrDown[sub_a_k])
-                    drawNum(sub_addStrDown[sub_a_k])
-                    wtext.insert('end','\n' ) 
-                    linenumber = sub_a_k
-
-
-            last_line_number = linenumber
-
-
-
+        wtext.addEnt(d)
 
     root.title("")        
     wtext.insert('end','\n\n//done' )         
@@ -543,8 +467,8 @@ def epathKey(event):
 
 def callback_variable_ide(*to):
     notepad = toIDE[variable_ide.get()]
-    print notepad
-    hyperlink.setIDE(notepad)
+    wtext.setIDE(notepad)
+    historyClick.setIDE(notepad)
 
 
 
@@ -577,9 +501,25 @@ frame1_visble = 1
 
 
 frame1.pack(side="top",fill= 'x')
-wtext = tk.Text(root,wrap = 'none', font = ("courier",14),tabs =("0.4i"))
+# wtext = tk.Text(root,wrap = 'none', font = ("courier",14),tabs =("0.4i"))
+wtext = textWidget.TextWidget(root,wrap = 'none', font = ("courier",14),tabs =("0.4i"))
 
-hyperlink = HyperlinkManager(wtext)
+# hyperlink = HyperlinkManager(wtext)
+
+
+
+import historyWidget
+
+historyClick = historyWidget.HistoryClickManager()
+# historyClick.setIDE(toIDE[variable_ide.get()])
+
+def saveTohistoryClick(data):
+    historyClick.addEnt(data)
+
+wtext.setClickCallback(saveTohistoryClick)
+
+
+
 
 frame_path = tk.Frame(frame1)
 frame_path.grid(row = 0 ,column =1,columnspan = 4)
@@ -625,6 +565,9 @@ ext_wiget.grid(row = 2 ,column =1, sticky='w')
 
 ob_dir = tk.Button(frame1,text = "..",command=opendirdialog)
 ob_dir.grid(row = 0 ,column =5)
+
+ob_h = tk.Button(frame1,text = "H",command=lambda: historyClick.show())
+ob_h.grid(row = 0 ,column =6)
 
 but = tk.Button(frame1,command = startFind,text = "FIND")
 but.grid(row = 1 ,column =2, sticky='ew')
@@ -703,7 +646,6 @@ autoEncodvar.set(1)
 ignCASEvar.set(1)
 eword.focus()
 
-import sys
 
 
 
@@ -724,15 +666,9 @@ class MyStd(object):
     def flush(self):
         self.f.flush()
 
-import historyWidget
 
-h = historyWidget.HistoryWindow()
-h.setIDE(toIDE[variable_ide.get()])
 
-def saveTohistoryClick(data):
-    h.addEnt(data)
 
-hyperlink.setCallback(saveTohistoryClick)
 
 
 # original_stderr = sys.stderr
