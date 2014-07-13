@@ -75,11 +75,22 @@ def find(path, patern, settings):
             patern = patern.lower()
     allFilesLenght = 0
 
+    def genAnim():
+        while True:
+            for x in range(6):
+                yield '*'*x
+    getAnim = genAnim()
     tprefound= time()
+    tlastTick= time()
     root.title("calculate...")
     for proot, dirs, files in walk(path):
         for fname, st in files:
             allFilesLenght += 1  
+            if allFilesLenght % 1000 and time() - tlastTick > 0.6:
+                tlastTick= time()
+                root.title("calculate" + getAnim.next())
+                root.update()
+
     print "allFilesLenght:", allFilesLenght, "t",time() - tprefound
 
     for proot, dirs, files in walk(path):
@@ -105,7 +116,7 @@ def find(path, patern, settings):
             countall += 1
              # print "\r",
             # print countall,
-            if countall%20 or countall>= allFilesLenght:
+            if countall%20:
                 proc = float(countall)/allFilesLenght * 100
                 root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
 
@@ -292,6 +303,7 @@ def startFind(*e):
     wtext.insert('end','\n' ) 
     wtext.insert('end','found %s   in %s files '%( gallmath ,len(allout) ))
     wtext.insert('end','[%s-valid] [%s-all] \nSearch time %s sec\n'%(gcountallvalid,gcountall,tsearh) )
+    root.title("Draw...")
 
 
     for d in allout:
@@ -370,7 +382,7 @@ def startFind(*e):
 
 
 
-
+    root.title("")        
     wtext.insert('end','\n\n//done' )         
     blink(but,  "green",  backcolor = "AliceBlue")          
 
