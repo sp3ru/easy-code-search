@@ -9,7 +9,7 @@ import subprocess
 class HyperlinkManager:
 
     def __init__(self, wtext):
-
+        self._callback = None
         self.text = wtext
 
         # self.text.tag_config("dir_hyperred", foreground="green",foreground="black")
@@ -55,12 +55,17 @@ class HyperlinkManager:
     def _leave(self, event):
         self.text.config(cursor="")
 
+    def setCallback(self, foo):
+        self._callback = foo
+
     def _click(self, event):
         print "HyperlinkManagergreen_click"
         for tag in self.text.tag_names(tk.CURRENT):
+           
+          
             if tag.startswith("dir_hyperred-"):
                 pathfile = self.dir_links[tag][0].replace("/","\\")
-                # print "link :",[self.dir_links[tag]]
+               
                 # print "link2:",[pathfile]
                 subprocess.Popen(r'explorer /select,"%s"'%pathfile)
                 self.text.config(cursor="")
@@ -74,6 +79,10 @@ class HyperlinkManager:
                 commandstr = self.ide.format(**self.links[tag])
                 print "commandstr:",[commandstr] 
                 subprocess.Popen(commandstr)
+                if self._callback and "info" in self.links[tag]:
+                    self._callback(self.links[tag]["info"])
+
+
                 return
 
 

@@ -5,7 +5,7 @@
 
 
 import sys
- 
+import copy 
 # hack подменяю пути до либ, я криво их поставил
 sys.path = [z.replace("Python264","Python27") for z in sys.path]
  
@@ -355,10 +355,14 @@ def startFind(*e):
 
 
             lastiend =0
+            copyd = copy.deepcopy(d)
+            copyd["subs"] = [d["subs"][cursub]]
             for istart, iend, ireal in indexes:
                 if lastiend <istart:
                     wtext.insert('end',stroke[lastiend:istart] )
-                wtext.insert('end',stroke[istart:iend], hyperlink.addlink({"fname":fullname,"line":linenumber,"column":ireal, "info":d}) ) 
+                
+                
+                wtext.insert('end',stroke[istart:iend], hyperlink.addlink({"fname":fullname,"line":linenumber,"column":ireal, "info":copyd}) ) 
                 lastiend   =    iend
             if iend <  len(stroke):
                   wtext.insert('end',stroke[iend:] )
@@ -719,6 +723,16 @@ class MyStd(object):
 
     def flush(self):
         self.f.flush()
+
+import historyWidget
+
+h = historyWidget.HistoryWindow()
+h.setIDE(toIDE[variable_ide.get()])
+
+def saveTohistoryClick(data):
+    h.addEnt(data)
+
+hyperlink.setCallback(saveTohistoryClick)
 
 
 # original_stderr = sys.stderr
