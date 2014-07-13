@@ -82,14 +82,15 @@ def find(path, patern, settings):
     getAnim = genAnim()
     tprefound= time()
     tlastTick= time()
-    root.title("calculate...")
-    for proot, dirs, files in walk(path):
-        for fname, st in files:
-            allFilesLenght += 1  
-            if allFilesLenght % 1000 and time() - tlastTick > 0.6:
-                tlastTick= time()
-                root.title("calculate" + getAnim.next())
-                root.update()
+    if not settings["fname"]:
+        root.title("calculate...")
+        for proot, dirs, files in walk(path):
+            for fname, st in files:
+                allFilesLenght += 1  
+                if allFilesLenght % 1000 and time() - tlastTick > 0.6:
+                    tlastTick= time()
+                    root.title("calculate" + getAnim.next())
+                    root.update()
 
     print "allFilesLenght:", allFilesLenght, "t",time() - tprefound
 
@@ -116,12 +117,13 @@ def find(path, patern, settings):
             countall += 1
              # print "\r",
             # print countall,
-            if countall%20:
-                proc = float(countall)/allFilesLenght * 100
-                root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
+            if not settings["fname"]:
+                if countall%20:
+                    proc = float(countall)/allFilesLenght * 100
+                    root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
 
-            if countall%100:
-                root.update() 
+                if countall%100:
+                    root.update() 
 
             if maxsize and maxsize <  st.st_size:
                 continue
