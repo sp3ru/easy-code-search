@@ -75,9 +75,12 @@ def find(path, patern, settings):
             patern = patern.lower()
     allFilesLenght = 0
 
+    tprefound= time()
+    root.title("calculate...")
     for proot, dirs, files in walk(path):
         for fname, st in files:
             allFilesLenght += 1  
+    print "allFilesLenght:", allFilesLenght, "t",time() - tprefound
 
     for proot, dirs, files in walk(path):
         if settings["fname"]:
@@ -100,6 +103,15 @@ def find(path, patern, settings):
                 
         for fname, st in files:
             countall += 1
+             # print "\r",
+            # print countall,
+            if countall%20 or countall>= allFilesLenght:
+                proc = float(countall)/allFilesLenght * 100
+                root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
+
+            if countall%100:
+                root.update() 
+
             if maxsize and maxsize <  st.st_size:
                 continue
 
@@ -128,11 +140,7 @@ def find(path, patern, settings):
                 continue
 
             text = open(fullname,"r").read()
-            # print "\r",
-            # print countall,
-            if countall%20:
-                proc = float(countall)/allFilesLenght * 100
-                root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
+           
             #encoding = "utf8"
             encoding = "cp1251"
             if autoEncoding and st.st_size:
@@ -148,7 +156,13 @@ def find(path, patern, settings):
                 text = text.decode(encoding) 
             except:        
                 print "decode encoding error",encoding,fullname
-                encoding = "utf8"
+                if autoEncoding:
+                    d = chardet.detect(text)
+                    encoding = d["encoding"]
+                    print "chardet again", d
+                    history.setEncoding(fullname,encoding)
+                else:    
+                    encoding = "utf8"
                 try:
                     text = text.decode(encoding,"ignore") 
                 except:
@@ -529,7 +543,7 @@ def hideInhide(*e):
         hscrollbar.pack_forget()
         wtext.pack_forget()
 
-        frame1.pack(side="top")
+        frame1.pack(side="top",fill= 'x')
         vscrollbar.pack(side = "right",fill = "y",expand=0)
         hscrollbar.pack(side = "bottom",fill = "x",expand=0)
         wtext.pack(side = "right",fill = tk.BOTH,expand=1)
@@ -544,7 +558,7 @@ frame1 = tk.Frame(root)
 frame1_visble = 1
 
 
-frame1.pack(side="top")
+frame1.pack(side="top",fill= 'x')
 wtext = tk.Text(root,wrap = 'none', font = ("courier",14),tabs =("0.4i"))
 
 hyperlink = HyperlinkManager(wtext)
@@ -698,6 +712,14 @@ class MyStd(object):
 # myWriter = MyStd()
 # sys.stderr = myWriter
 # sys.stdout = myWriter
+
+
+# eword2 = tk.Text(frame1,wrap = 'none', font = ("courier",14),tabs =("0.4i"),height=1)
+# eword2.grid(row = 3 ,column =1, sticky='w')
+# eword2.insert('0.0',word+'jfrfgghhgfffffff')
+# eword2.tag_config("here",  foreground="blue",background="DarkKhaki")   
+# eword2.tag_add("here", "1.1","2.5")
+
 
 
 root.mainloop()
