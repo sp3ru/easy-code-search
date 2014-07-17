@@ -88,7 +88,7 @@ def find(path, patern, settings):
         for proot, dirs, files in walk(path):
             for fname, st in files:
                 allFilesLenght += 1  
-                if allFilesLenght % 1000 and time() - tlastTick > 0.6:
+                if allFilesLenght % 300 == 0 and time() - tlastTick > 0.6:
                     tlastTick= time()
                     root.title("calculate" + getAnim.next())
                     root.update()
@@ -119,12 +119,11 @@ def find(path, patern, settings):
              # print "\r",
             # print countall,
             if not settings["fname"]:
-                if countall%20:
+                if countall%200 == 0:
                     proc = float(countall)/allFilesLenght * 100
                     root.title("%d%% : %s/%s"%(proc, countall, allFilesLenght))
-
-                if countall%100:
                     root.update() 
+                       
 
             if maxsize and maxsize <  st.st_size:
                 continue
