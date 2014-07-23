@@ -42,7 +42,12 @@ class HistoryWindow(Tkinter.Toplevel):
         vscrollbar.pack(side = "right",fill = "y",expand=0)
         hscrollbar.pack(side = "bottom",fill = "x",expand=0)
         self.wtext.pack(side = "right",fill = Tkinter.BOTH,expand=1)
+        
+        butHide = Tkinter.Button(self,command = self._clear,text = "clear")
+        butHide.place(relx=1, x=-19, y=2, anchor=Tkinter.NE)
 
+    def _clear(self):
+        self.wtext.clear()
 
     def setIDE(self, value):
         self.wtext.hyperlink.setIDE(value)
