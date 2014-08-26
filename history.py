@@ -16,6 +16,7 @@ class History(object):
         self.enCodings = {}
         self.needCodingSave = 0
         self.maxHistory = maxHistory
+        self.lastExt = "-* +py +cpp +hpp +ipp +json +xml +txt"
         self.savePath = os.path.join(savePath, "findCool.pkl")
         self.savePathCoding = os.path.join(savePathCoding, "findCoolCoding.pkl")
         try:
@@ -29,6 +30,11 @@ class History(object):
         except Exception as e:
             print "History loadCoding error",e
             # traceback.print_exc()
+    def setExt(self, ext):
+        self.lastExt = ext
+
+    def getExt(self):
+        return self.lastExt
 
     def checkEncoding(self,fname):
         #fname = os.path.normpath(fname)  
@@ -89,7 +95,12 @@ class History(object):
     def save(self):
         fname = self.savePath
         output = open(fname, 'wb')
-        pickle.dump((self.paths,self.words,self.path2 ), output)
+        data = {}
+        data["paths"]  =    self.paths
+        data["words"] =    self.words
+        data["path2"] =    self.path2  
+        data["lastExt"] =    self.lastExt
+        pickle.dump(data, output)
         output.close()
         print "history save to", fname
 
@@ -98,7 +109,16 @@ class History(object):
         pkl_file = open(fname, 'rb')
         data = pickle.load(pkl_file)
         pkl_file.close()
-        self.paths, self.words,self.path2 = data 
+
+        if type(data) != dict: # conver from old format
+            self.paths, self.words,self.path2 = data 
+        else:
+            #new format
+            self.paths =data["paths"] 
+            self.words =data["words"]
+            self.path2   =data["path2"]
+            self.lastExt =data["lastExt"]
+
         print self.paths, self.words,self.path2
 
 

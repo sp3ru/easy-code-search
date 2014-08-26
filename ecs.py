@@ -47,6 +47,7 @@ pathlast = history.getlsitPathsLast(1)
 
 path = pathlast[0] if pathlast else ""
 word =  history.getlsitWords()[-1] if history.getlsitWords() else ""
+savedext =history.getExt()
 print  history.getlsitPaths()
 
 
@@ -277,6 +278,7 @@ def startFind(*e):
 
     allpath = set(path2+[path])         
 
+    history.setExt(ext_wiget.get()) 
     history.addVal(strpatern,path,path2) 
     wtext.delete("0.0","end")
 
@@ -549,7 +551,7 @@ eword.bind("<Up>",lambda e:epath.focus())
 
 extvalidator  = ExtNotify()
 ext_wiget = tk.Entry(frame1,width = 50, font = ("courier",14) )
-ext_wiget.insert(0,"-* +py +def +xml +txt +cpp +hpp  +ipp")
+ext_wiget.insert(0,savedext)
 ext_wiget.bind("<Return>",startFind)
 ext_wiget.bind("<Up>",lambda e:eword.focus())
 
