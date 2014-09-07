@@ -261,7 +261,7 @@ def startFind(*e):
             return
 
 
-    if not extvalidator.update(ext_wiget.get()):
+    if not extvalidator.update(ext_wiget.get('0.0', "end")):
         blink(ext_wiget)  
         return
 
@@ -278,7 +278,7 @@ def startFind(*e):
 
     allpath = set(path2+[path])         
 
-    history.setExt(ext_wiget.get()) 
+    history.setExt(ext_wiget.get("0.0","end")) 
     history.addVal(strpatern,path,path2) 
     wtext.delete("0.0","end")
 
@@ -550,10 +550,97 @@ eword.bind("<Down>",lambda e:ext_wiget.focus())
 eword.bind("<Up>",lambda e:epath.focus())
 
 extvalidator  = ExtNotify()
-ext_wiget = tk.Entry(frame1,width = 50, font = ("courier",14) )
-ext_wiget.insert(0,savedext)
-ext_wiget.bind("<Return>",startFind)
+# ext_wiget = tk.Entry(frame1,width = 50, font = ("courier",14) )
+# ext_wiget.insert(0,savedext)
+# ext_wiget.bind("<Return>",startFind)
+# ext_wiget.bind("<Up>",lambda e:eword.focus())
+
+def parseEx(txt):
+    status = ""
+    out = []
+    lastchar = ""
+    start = 0
+    word = ""
+    for i, char in enumerate(txt):
+        if char.isspace():
+            if status:
+                if word:
+                    out.append([status, start, i,word])
+                    status = ""
+                    word = ""
+                else:
+                    out.append(["error", start, 999,word])
+                    return out
+            word = ""
+
+        elif char == "+":
+            if status or word:
+                out.append(["error", i, 999,word])
+                return out
+            start = i
+            status = "include"
+
+        elif char == "-":
+            if status or word:
+                out.append(["error", i, 999,word])
+                return out
+
+            start = i
+            status = "exclude"
+
+        else:
+            if not status:
+                out.append(["error", i, 999,word])
+                return out
+            word = word + char
+
+    if status:
+        if word:
+            out.append([status, start, i+1,word])
+        else:
+            out.append(["error", i, 999,word])
+
+
+    return out
+
+
+def ext_wiget_Return(e):
+    startFind()
+    return "break"
+
+def ext_wiget_key(e):
+    txt = ext_wiget.get("0.0", "end")
+    if not e or (e.char and txt and "\n" in txt[:-1]):
+        ext_wiget.delete("0.0","end")
+        txt = txt.replace("\n", "")
+        ext_wiget.insert("0.0",txt)
+
+    ext_wiget.tag_remove("include", "0.0", tk.END)
+    ext_wiget.tag_remove("exclude", "0.0", tk.END)
+    ext_wiget.tag_remove("error",   "0.0", tk.END)
+
+    for res in parseEx(txt):
+        ext_wiget.tag_add(res[0], "1.%s"%res[1],"1.%s"%res[2])
+
+
+
+
+   
+
+ext_wiget = tk.Text(frame1,wrap = 'none', font = ("courier",14),tabs =("0.2i"),height=1)
+ext_wiget.delete("0.0","end")
+ext_wiget.insert("0.0",savedext)
+ext_wiget.bind("<KeyRelease>",ext_wiget_key)
+ext_wiget.bind("<Return>",ext_wiget_Return)
 ext_wiget.bind("<Up>",lambda e:eword.focus())
+# ext_wiget.tag_config("here",  foreground="blue",background="DarkKhaki")   
+ext_wiget.tag_config("include",  foreground="blue")   
+ext_wiget.tag_config("exclude",  foreground="red")   
+ext_wiget.tag_config("error",  foreground="black",background="red")   
+# eword2.tag_add("here", "1.1","2.5")
+ext_wiget_key(None)
+
+
 
 
 tk.Label(frame1,text = "PATH", font = ("courier",10) ).grid(row = 0 ,column =0, sticky='w')
