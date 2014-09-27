@@ -40,7 +40,7 @@ defIDE = "sublime3"
 
 history = History(  savePath=os.getenv('USERPROFILE'),
                     savePathCoding=os.getenv('USERPROFILE'),
-                    maxHistory=20)
+                    maxHistory=30)
 
 extvalidator  = ExtNotify()
 
@@ -395,10 +395,10 @@ def setvalentry(entryName,val):
 def pathHistory(event):
     inputDialog = PopupDialog(root,
                 event.x_root, event.y_root,
-                lastPaths = history.getlsitPathsLast(2),
+                lastPaths = history.getlsitPathsLast(3),
                 allPaths  = history.getlsitPaths(),
                 callback = lambda path:setvalentry(epath,path))
-
+    root.wait_window(inputDialog.top)
 
 
 

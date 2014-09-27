@@ -10,17 +10,18 @@ class PopupDialog:
     def __init__(self, parent, posx, posy, lastPaths = None, allPaths = None, callback = None):
         self.callback = callback
         top = self.top = tk.Toplevel(parent, pady= 2, padx= 2)
+        top.geometry('+%d+%d'%(0,-1000))  
         self.addPaths(lastPaths, allPaths)
         posx,posy = self.getBestPosition(posx,posy)
         top.geometry('+%d+%d'%(posx,posy))  
-        top["bg"] = "#080000"
+        top["bg"] = "red"
        
         
         top.overrideredirect(1) 
-        top.focus()
+        # top.focus()
         top.focus_set()
         top.bind("<FocusOut>", self.FocusOut)
-
+        top["bg"] = "#080000"
 
 
     def addPaths(self, lastPaths, allPaths):
@@ -74,6 +75,7 @@ class PopupDialog:
     def onClick(self, e, data):
         print data
         self.top.destroy()
+        if self.callback: self.callback(data)
 
     def onEnterBtn(self, e):
         for t in self.btns:
@@ -89,7 +91,7 @@ class PopupDialog:
             print "not found work area display  for pos", x,y
             return x,y
 
-        # hack: pack top and get w/h
+        # # hack: pack top and get w/h
         self.top.attributes("-alpha", 0)  
         self.top.update()   
         self.top.attributes("-alpha", 1) 
@@ -97,7 +99,7 @@ class PopupDialog:
         w = self.top.winfo_width()
         h = self.top.winfo_height()
         minw,minh,maxw, maxh = warea
-
+        # print "w,h",w,h
         if x + w > maxw:
             x = maxw - w - ofset
        
@@ -132,7 +134,7 @@ if __name__ == '__main__':
                     r"C:\Users\sp3b\Desktop\easy-code-search\data",
                     r"C:\Users\sp3b\Desktop\cdata",
                     r"C:\Users\sp3b/Desktop",
-                    ] 
+                    ] + [ r"C:\Users\sp3b/Desktop/%d"%d for d in range(20)]
 
 
         inputDialog = PopupDialog(root,
