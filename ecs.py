@@ -28,6 +28,7 @@ import Tkinter as tk
 import tkFileDialog
 import tkFont
 from wEntry import wEntry
+from popup_history import PopupDialog
 
 toIDE = {
 "notepad++" : r'"C:\Program Files (x86)\Notepad++\notepad++.exe" "{fname}" -n{line} -c{column}',
@@ -392,21 +393,12 @@ def setvalentry(entryName,val):
 
 
 def pathHistory(event):
-    popup = tk.Menu(root, tearoff=0)
+    inputDialog = PopupDialog(root,
+                event.x_root, event.y_root,
+                lastPaths = history.getlsitPathsLast(2),
+                allPaths  = history.getlsitPaths(),
+                callback = lambda path:setvalentry(epath,path))
 
-    for path in history.getlsitPathsLast(2):
-       popup.add_command(label=path , command=lambda path=path:setvalentry(epath,path))
-    popup.add_separator()
-    for path in history.getlsitPaths():
-       popup.add_command(label=path , command=lambda path=path:setvalentry(epath,path)) 
-  
-
-    try:
-        popup.tk_popup(event.x_root, event.y_root, 0)
-    
-    finally:
-        # make sure to release the grab (Tk 8.0a1 only)
-        popup.grab_release()
 
 
 
