@@ -9,20 +9,41 @@ class PopupDialog:
 
     def __init__(self, parent, posx, posy, lastPaths = None, allPaths = None, callback = None):
         self.callback = callback
+        self.lastPaths = lastPaths
+        self.allPaths = allPaths
         top = self.top = tk.Toplevel(parent, pady= 2, padx= 2)
         top.geometry('+%d+%d'%(0,-1000))  
         self.addPaths(lastPaths, allPaths)
+        self.posx,self.posy = posx,posy
         posx,posy = self.getBestPosition(posx,posy)
+
         top.geometry('+%d+%d'%(posx,posy))  
-        top["bg"] = "red"
-       
         
         top.overrideredirect(1) 
-        # top.focus()
+        top.focus()
         top.focus_set()
+        # top.focus_force()
         top.bind("<FocusOut>", self.FocusOut)
+        # top.bind("<FocusIn>", self.FocusIn)
+        top.bind("<Button-3>" , self.showAll )
+        self._isall = False
         top["bg"] = "#080000"
 
+    def showAll(self,*e):
+        if self._isall: return
+        self._isall = 1
+        # try:
+        #     if not self.top.winfo_viewable():
+        #         return
+        # except tk.TclError, e:
+        #      return
+
+        lastData = []
+        for p in self.allPaths:
+           lastData = self._addStr( p, lastData) 
+
+        posx,posy = self.getBestPosition(self.posx,self.posy)
+        self.top.geometry('+%d+%d'%(posx,posy)) 
 
     def addPaths(self, lastPaths, allPaths):
         allPaths.sort()
@@ -35,11 +56,9 @@ class PopupDialog:
 
         tk.Frame(self.top, bg = "black").pack()
 
-        for p in allPaths:
-           lastData = self._addStr( p, lastData)
+        # for p in allPaths:
+        #    lastData = self._addStr( p, lastData)
 
-
-        lastData = []
 
     def _addStr(self, path, lastData):
         path =os.path.normpath(path)
@@ -113,14 +132,26 @@ class PopupDialog:
 
 
     def FocusOut(self, *e):
-        print "FocusOut"
+        # print "FocusOut"
         self.top.destroy()
+
+    # def FocusIn(self, *e):
+    #     print "FocusIn"
+    
 
 
 
 if __name__ == '__main__':
         
+    def onClickRE(event):
+        print "root onClickRE" #,inputDialog.top.winfo_viewable()
+        # for x in dir(inputDialog.top):
+        #     print x
+        # inputDialog.showAll()
+
+
     def onClick(event):
+        global inputDialog
         print "root coordinates: %s/%s" % (event.x_root, event.y_root)
         lastPaths = [r"C:\Users\sp3b\Desktop\easy-code-search\easy-code-search",
                     r"C:\Users\sp3b\Desktop\easy-code-search\bbbb",
@@ -140,14 +171,22 @@ if __name__ == '__main__':
         inputDialog = PopupDialog(root,
                                 event.x_root, event.y_root,
                                 lastPaths = lastPaths,
-                                allPaths = allPaths)
-        root.wait_window(inputDialog.top)
+                                allPaths = allPaths,
+                                 callback =setVarEntr)
+        # root.wait_window(inputDialog.top)
+    def setVarEntr(val):
+        entr.delete("0","end")    
+        entr.insert("end", val)
        
     root = tk.Tk()
     mainLabel = tk.Label(root, text='Example for pop up input box')
     mainLabel.pack()
 
-    root.bind("<Button-3>", onClick)
-    root.geometry('200x200+100+500')
+    entr = tk.Entry(root, width = 50)
+    entr.pack()
+
+    # entr.bind("<ButtonPress-3>", onClick)
+    entr.bind("<Button-3>", onClick )
+    root.geometry('500x200+100+500')
 
     root.mainloop()

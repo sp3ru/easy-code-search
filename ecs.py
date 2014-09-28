@@ -436,6 +436,9 @@ def setvalentry(entryName,val):
     entryName.insert(0,val)
 
 
+
+
+
 def pathHistory(event):
     inputDialog = PopupDialog(root,
                 event.x_root, event.y_root,
@@ -762,19 +765,33 @@ wtext.pack(side = "right",fill = tk.BOTH,expand=1)
 init()
 root.bind("<F1>",lambda e: chrevar.set(not chrevar.get()))
 root.bind("<Alt-r>",lambda e: chrevar.set(not chrevar.get()))
+root.bind("<Control-r>",lambda e: chrevar.set(not chrevar.get()))
 
 root.bind("<F2>",lambda e: fnamevar.set(not fnamevar.get()))
 root.bind("<Alt-f>",lambda e: fnamevar.set(not fnamevar.get()))
+root.bind("<Control-f>",lambda e: fnamevar.set(not fnamevar.get()))
 
 root.bind("<F3>",lambda e: ignCASEvar.set(not ignCASEvar.get()))
 root.bind("<Alt-i>",lambda e: ignCASEvar.set(not ignCASEvar.get()))
+root.bind("<Control-i>",lambda e: ignCASEvar.set(not ignCASEvar.get()))
 
 root.bind("<F4>",lambda e: autoEncodvar.set(not autoEncodvar.get()))
 root.bind("<Alt-a>",lambda e: autoEncodvar.set(not autoEncodvar.get()))
+root.bind("<Control-a>",lambda e: autoEncodvar.set(not autoEncodvar.get()))
 
 root.bind("<F5>",lambda e: wholeWorldVar.set(not wholeWorldVar.get()))
 root.bind("<Alt-w>",lambda e: wholeWorldVar.set(not wholeWorldVar.get()))
-root.bind("<F6>",lambda e:eword.focus())
+root.bind("<Control-w>",lambda e: wholeWorldVar.set(not wholeWorldVar.get()))
+
+def focusSearch(*e):
+    eword.select_range(0, 'end')
+    eword.icursor("end")
+    eword.focus()
+
+root.bind("<F6>",focusSearch)
+root.bind("<Alt-f>",focusSearch)
+root.bind("<Control-f>",focusSearch)
+
 root.bind("<Alt-Up>", hideInhide)
 root.bind("<Alt-Down>",hideInhide)
 # root.bind("<F5>",startFind)
