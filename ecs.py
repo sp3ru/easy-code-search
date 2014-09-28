@@ -49,7 +49,34 @@ pathlast = history.getlsitPathsLast(1)
 path = pathlast[0] if pathlast else ""
 word =  history.getlsitWords()[-1] if history.getlsitWords() else ""
 savedext =history.getExt()
-print  history.getlsitPaths()
+# print  history.getlsitPaths()
+
+
+def searhInStrWholeWorld(string,patern, ignoreCase = True, addpos = 0):
+    lenw = len(patern)
+    lens = len(string)
+    if ignoreCase:
+        string = string.lower()
+    lastIndex = 0
+    if not string: return
+    while True:
+        index = string.find(patern, lastIndex, lens )
+        lastIndex = index+1    
+        if index == -1:
+            return None
+
+        if index != 0:
+            preSymbol = string[index-1]
+            if preSymbol.isalpha() or preSymbol == "_" or preSymbol.isdigit():
+                continue
+        
+        
+        if index+lenw < lens:
+            afterSymbol = string[index+lenw]
+            if afterSymbol.isalpha() or afterSymbol == "_" or afterSymbol.isdigit():
+                continue
+
+        return [(index+addpos, index+addpos+lenw,index+1 )]
 
 
 def searhInStr(string,patern,ignoreCase = True,regex=False, addpos = 0):
@@ -63,12 +90,13 @@ def searhInStr(string,patern,ignoreCase = True,regex=False, addpos = 0):
             return None
         return [(index+addpos, index+addpos+len(patern),index+1 )]
  
-        
+
 def find(path, patern, settings):
     maxsize = settings["maxsize"]
     autoEncoding = settings["autoEncoding"]
     ignoreCase = settings["ignoreCase"]
     regex = settings["regex"]
+    wholeWorld = settings["wholeWorld"]
     addStrUp,addStrDown = settings["addStr"]
     out = []
     countall = 0
@@ -100,7 +128,11 @@ def find(path, patern, settings):
     for proot, dirs, files in walk(path):
         if settings["fname"]:
             for folder, st in dirs:
-                subs = searhInStr(folder,patern,ignoreCase,regex, addpos = len(proot)+1)
+                if wholeWorld and not regex:
+                    subs = searhInStrWholeWorld(folder,patern,ignoreCase, addpos = len(proot)+1)
+                else:
+                    subs = searhInStr(folder,patern,ignoreCase,regex, addpos = len(proot)+1)
+
                 if subs:
                     dictFound = { "fullname": os.path.normpath(os.path.join(proot, folder)),
                             "subsfullname":subs,
@@ -145,7 +177,10 @@ def find(path, patern, settings):
                             "size": st.st_size 
                         }
 
-            subs = searhInStr(fname,patern,ignoreCase,regex, addpos = len(proot)+1)
+            if wholeWorld and not regex:
+               subs = searhInStrWholeWorld(fname,patern,ignoreCase, addpos = len(proot)+1)
+            else:            
+                subs = searhInStr(fname,patern,ignoreCase,regex, addpos = len(proot)+1)
             if subs:
                 dictFound["subsfullname"] = subs
 
@@ -189,7 +224,10 @@ def find(path, patern, settings):
             text = text.split('\n')
             for sindex , string in enumerate(text,1):
                 indexstr = "%4d|"%sindex
-                subs = searhInStr(string,patern,ignoreCase,regex,len(indexstr))
+                if wholeWorld and not regex:
+                    subs = searhInStrWholeWorld(string,patern,ignoreCase, len(indexstr))
+                else:
+                    subs = searhInStr(string,patern,ignoreCase,regex,len(indexstr))
                 if subs:
                     sub_addStrUp, sub_addStrDown = {},{}
                     isfound = True
@@ -224,7 +262,7 @@ def startFind(*e):
     if not maxsize or not maxsize.isdigit():
         blink(inputMaxSize)  
         return
-    maxsize = int(maxsize) / (1024*1024)   
+    maxsize = int(maxsize) * 1024*1024
 
     addStr = inputAddStr.get().lower()
         
@@ -237,6 +275,7 @@ def startFind(*e):
             "ignoreCase": ignCASEvar.get(),
             "fname":fnamevar.get(),
             "regex":chrevar.get(),
+            "wholeWorld":wholeWorldVar.get(),
             "autoEncoding":autoEncodvar.get(),
             "addStr":addStr}
     
@@ -306,6 +345,11 @@ def startFind(*e):
     tsearh =time() - tsearh 
     # wtext.delete("0.0","end")
     wtext.insert('end','\n' ) 
+    if settings["wholeWorld"]:
+        wtext.insert('end','settings: whole World = True\n' ) 
+    if settings["maxsize"]:
+        wtext.insert('end','settings: maxsize file = %s byte\n'%maxsize ) 
+
     wtext.insert('end','found %s   in %s files '%( gallmath ,len(allout) ))
     wtext.insert('end','[%s-valid] [%s-all] \nSearch time %s sec\n'%(gcountallvalid,gcountall,tsearh) )
     root.title("Draw...")
@@ -637,11 +681,11 @@ ext_wiget_key(None)
 
 tk.Label(frame1,text = "PATH", font = ("courier",10) ).grid(row = 0 ,column =0, sticky='w')
 tk.Label(frame1,text = "WORD", font = ("courier",10) ).grid(row = 1 ,column =0, sticky='w')
-tk.Label(frame1,text = "EXT ", font = ("courier",10) ).grid(row = 2 ,column =0, sticky='w')
+tk.Label(frame1,text = "EXT ", font = ("courier",10) ).grid(row = 3 ,column =0, sticky='w')
 
 
 eword.grid(row = 1 ,column =1, sticky='w')
-ext_wiget.grid(row = 2 ,column =1, sticky='w')
+ext_wiget.grid(row = 3 ,column =1, sticky='w')
 
 ob_dir = tk.Button(frame1,text = "..",command=opendirdialog)
 ob_dir.grid(row = 0 ,column =5)
@@ -652,7 +696,7 @@ ob_h.grid(row = 0 ,column =6)
 but = tk.Button(frame1,command = startFind,text = "FIND")
 but.grid(row = 1 ,column =2, sticky='ew')
 chrevar = tk.IntVar()
-chre = tk.Checkbutton(frame1,text='regex', variable=chrevar)
+chre = tk.Checkbutton(frame1,text='re', variable=chrevar)
 chre.grid(row = 1 ,column =3, sticky='ew')
 
 fnamevar = tk.IntVar()
@@ -663,13 +707,18 @@ ignCASEvar = tk.IntVar()
 wignCASE = tk.Checkbutton(frame1,text='ignCASE', variable=ignCASEvar)
 wignCASE.grid(row = 1 ,column =5, sticky='ew')
 
+wholeWorldVar = tk.IntVar()
+cbWholeWorld = tk.Checkbutton(frame1,text='"w"', variable=wholeWorldVar)
+cbWholeWorld.grid(row = 1 ,column =6, sticky='s')
+
 autoEncodvar = tk.IntVar()
 autoEncod = tk.Checkbutton(frame1,text='aЁ', variable=autoEncodvar)
-autoEncod.grid(row = 2 ,column =2, sticky='ew')
+autoEncod.grid(row = 3 ,column =2, sticky='ew')
+
 
 inputAddStr = tk.Entry(frame1,width = 8, font = ("courier",8) )
 inputAddStr.insert(0,"0 0")
-inputAddStr.grid(row = 2 ,column =3)
+inputAddStr.grid(row = 3 ,column =3)
 inputAddStr.bind("<Return>",startFind)
 
 variable_ide =tk.StringVar(frame1)
@@ -677,12 +726,12 @@ variable_ide.trace("w", callback_variable_ide)
 variable_ide.set(defIDE) # default value
 
 choise_ide = tk.OptionMenu(frame1, variable_ide, "sublime", "notepad++", "komodo")
-choise_ide.grid(row = 2 ,column =4, sticky='ew')
+choise_ide.grid(row = 3 ,column =4, sticky='ew')
 
 
 inputMaxSize = tk.Entry(frame1,width = 5, font = ("courier",14) )
 inputMaxSize.insert(0,"0 MB")
-inputMaxSize.grid(row = 2 ,column =5, sticky='ew')
+inputMaxSize.grid(row = 3 ,column =5, sticky='ew')
 inputMaxSize.bind("<Return>",startFind)
 
 
@@ -712,10 +761,22 @@ wtext.pack(side = "right",fill = tk.BOTH,expand=1)
 
 init()
 root.bind("<F1>",lambda e: chrevar.set(not chrevar.get()))
+root.bind("<Alt-r>",lambda e: chrevar.set(not chrevar.get()))
+
 root.bind("<F2>",lambda e: fnamevar.set(not fnamevar.get()))
+root.bind("<Alt-f>",lambda e: fnamevar.set(not fnamevar.get()))
+
 root.bind("<F3>",lambda e: ignCASEvar.set(not ignCASEvar.get()))
+root.bind("<Alt-i>",lambda e: ignCASEvar.set(not ignCASEvar.get()))
+
 root.bind("<F4>",lambda e: autoEncodvar.set(not autoEncodvar.get()))
-root.bind("<F5>",lambda e:eword.focus())
+root.bind("<Alt-a>",lambda e: autoEncodvar.set(not autoEncodvar.get()))
+
+root.bind("<F5>",lambda e: wholeWorldVar.set(not wholeWorldVar.get()))
+root.bind("<Alt-w>",lambda e: wholeWorldVar.set(not wholeWorldVar.get()))
+root.bind("<F6>",lambda e:eword.focus())
+root.bind("<Alt-Up>", hideInhide)
+root.bind("<Alt-Down>",hideInhide)
 # root.bind("<F5>",startFind)
 
 butHide = tk.Button(root,command = hideInhide,text = "^")
