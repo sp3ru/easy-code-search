@@ -578,7 +578,7 @@ epath_second = tk.Entry(frame_path,width = 120, font = ("courier",10) )
 epath_second.grid(row = 1 ,column = 1,columnspan = 4,  sticky='w')
 epath_second.insert(0,";".join(history.getlsitPaths2())+";")
 
-eword = tk.Entry(frame1,width = 50, font = ("courier",14), bg= "AliceBlue" )
+eword = tk.Entry(frame1,width = 70, font = ("courier",14), bg= "AliceBlue" )
 eword.insert(0,word)
 eword.bind("<Button-2>",insert2eword)
 eword.bind("<ButtonRelease-2>",eventIgnore)
@@ -749,7 +749,23 @@ def insertFromTxt(*e):
     setvalentry(eword,select)    
     return eventIgnore(*e)
 
+def selectAll(*e):
+    wtext.tag_add(tk.SEL, "1.0", tk.END)
+    wtext.mark_set(tk.INSERT, "1.0")
+    wtext.see(tk.INSERT)
+    return 'break'
+
+def copyToBufer(e):
+    select = wtext.selection_get()
+    win32clipboard.OpenClipboard()
+    win32clipboard.SetClipboardText(select)
+    win32clipboard.CloseClipboard()
+
+
+
 wtext.bind("<Button-2>",insertFromTxt)
+wtext.bind("<Control-a>",selectAll)
+wtext.bind("<Control-A>",selectAll)
 eword.bind("<ButtonRelease-2>",eventIgnore)
 
 vscrollbar = tk.Scrollbar(root,orient='vert', command=wtext.yview)
