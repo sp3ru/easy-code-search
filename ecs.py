@@ -29,6 +29,7 @@ import tkFileDialog
 import tkFont
 from wEntry import wEntry
 from popup_history import PopupDialog
+from widgetBack import WidgetBackText, WidgetBackEntry
 
 toIDE = {
 "notepad++" : r'"C:\Program Files (x86)\Notepad++\notepad++.exe" "{fname}" -n{line} -c{column}',
@@ -566,6 +567,7 @@ frame_path.grid(row = 0 ,column =1,columnspan = 4)
 
 # epath = tk.Entry(frame_path,width = 105, font = ("courier",14) )
 epathFont = tkFont.Font(family='courier', size=14)
+epathFontSmall = tkFont.Font(family='courier', size=10)
 epath = wEntry(frame_path,width = 86, font = epathFont )
 epath.insert(0,path)
 epath.bind("<Down>",lambda e:eword.focus())
@@ -574,11 +576,18 @@ epath.bind("<Return>",startFind)
 # epath.bind("<Control-space>",epathKey)
 epath.grid(row = 0 ,column =1,columnspan = 4,  sticky='w')
 
-epath_second = tk.Entry(frame_path,width = 120, font = ("courier",10) )
+# epath_second = tk.Entry(frame_path,width = 120, font = ("courier",10) )
+epath_second = wEntry(frame_path,width = 120, font = epathFontSmall )
 epath_second.grid(row = 1 ,column = 1,columnspan = 4,  sticky='w')
 epath_second.insert(0,";".join(history.getlsitPaths2())+";")
 
-eword = tk.Entry(frame1,width = 70, font = ("courier",14), bg= "AliceBlue" )
+class WE(tk.Entry, WidgetBackEntry):
+    def __init__(self,root,*w,**kw):
+        tk.Entry.__init__(self,root,*w,**kw )
+        WidgetBackEntry.__init__(self,root,*w,**kw )
+
+
+eword = WE(frame1,width = 70, font = ("courier",14), bg= "AliceBlue" )
 eword.insert(0,word)
 eword.bind("<Button-2>",insert2eword)
 eword.bind("<ButtonRelease-2>",eventIgnore)
@@ -663,12 +672,17 @@ def ext_wiget_key(e):
 
 
 
-
+class WT(tk.Text, WidgetBackText):
+    def __init__(self,root,*w,**kw):
+        tk.Text.__init__(self,root,*w,**kw )
+        WidgetBackText.__init__(self,root,*w,**kw )
    
 
-ext_wiget = tk.Text(frame1,wrap = 'none', font = ("courier",14),tabs =("0.2i"),height=1)
+ext_wiget = WT(frame1,wrap = 'none', font = ("courier",14),tabs =("0.2i"),height=1)
 ext_wiget.delete("0.0","end")
 ext_wiget.insert("0.0",savedext)
+ext_wiget.initHist()
+
 ext_wiget.bind("<KeyRelease>",ext_wiget_key)
 ext_wiget.bind("<Return>",ext_wiget_Return)
 ext_wiget.bind("<Up>",lambda e:eword.focus())

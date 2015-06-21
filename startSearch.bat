@@ -1,2 +1,2 @@
-C:\Python26\python.exe  ecs.py
+C:\Python26\pythonw.exe  ecs.py
 pause
